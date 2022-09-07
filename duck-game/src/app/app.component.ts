@@ -20,6 +20,8 @@ export class AppComponent {
     WIDTH = 500;
     HEIGHT = 500;
     PIXEL_SIZE = 5;
+    delay = 5;
+    currentFrame = 0
     duckCoordinator: DuckCoordinator = new DuckCoordinator();
     heartCoordinator: HeartCoordinator = new HeartCoordinator();
     clicks: Location[] = []
@@ -51,21 +53,28 @@ export class AppComponent {
     }
 
     private animate(): void {
-        this.drawWater();
-        this.clicks.forEach(click => {
-            if (this.duckCoordinator.petDuck(click.x, click.y)) {
-                this.heartCoordinator.addHeart(click.x, click.y);
-                this.addNewDuck();
-            } else {
-                this.heartCoordinator.addHeart(click.x, click.y);
-            }
-        })
-        this.clicks = [];
-        this.duckCoordinator.moveDucks();
-        this.duckCoordinator.draw((duck: Duck) => this.drawSprite(duck, this.ctx));
-        this.heartCoordinator.beat();
-        this.heartCoordinator.draw((heart: Heart) => this.drawSprite(heart, this.ctx));
-        window.requestAnimationFrame(() => this.animate());
+        if (this.currentFrame < this.delay) {
+            this.currentFrame++;
+            window.requestAnimationFrame(() => this.animate());
+        } else {
+            this.drawWater();
+            this.clicks.forEach(click => {
+                if (this.duckCoordinator.petDuck(click.x, click.y)) {
+                    this.heartCoordinator.addHeart(click.x, click.y);
+                    this.addNewDuck();
+                } else {
+                    this.heartCoordinator.addHeart(click.x, click.y);
+                }
+            })
+            this.clicks = [];
+            this.currentFrame = 0;
+            this.duckCoordinator.moveDucks();
+            this.duckCoordinator.draw((duck: Duck) => this.drawSprite(duck, this.ctx));
+            this.heartCoordinator.beat();
+            this.heartCoordinator.draw((heart: Heart) => this.drawSprite(heart, this.ctx));
+            window.requestAnimationFrame(() => this.animate());
+
+        }
     }
 
     private addNewDuck(): void {
