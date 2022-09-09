@@ -1,5 +1,5 @@
 import { Color } from "../utils/colors";
-import { Location } from "./location";
+import { PixelLocation } from "./location";
 import { Pixel } from "./pixel";
 import { Repeat } from "./repeat";
 
@@ -9,14 +9,14 @@ export class Heart {
     repeats: Repeat[] = [];
     life = 60;
 
-    constructor(location: Location) {
+    constructor(location: PixelLocation) {
         location.x = location.x - 2;
         location.y = location.y - 2;
         this.define();
         this.position(location)
     }
 
-    private position(location: Location): void {
+    private position(location: PixelLocation): void {
         let y = location.y;
         let x = location.x;
         this.repeats.forEach(repeat => {

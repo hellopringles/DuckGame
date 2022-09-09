@@ -1,5 +1,5 @@
 import { Color } from "../utils/colors";
-import { Location } from "./location";
+import { PixelLocation } from "./location";
 import { Pixel } from "./pixel";
 import { Repeat } from "./repeat";
 
@@ -11,7 +11,7 @@ export class Duck {
     repeats: Repeat[] = [];
     facingLeft: Boolean = true;
 
-    constructor(location: Location, facingLeft = true) {
+    constructor(location: PixelLocation, facingLeft = true) {
         this.define();
         this.position(location);
         if (!facingLeft) {
@@ -66,7 +66,7 @@ export class Duck {
         return res;
     }
 
-    private position(location: Location): void {
+    private position(location: PixelLocation): void {
         let y = location.y;
         let x = location.x;
         this.repeats.forEach(repeat => {

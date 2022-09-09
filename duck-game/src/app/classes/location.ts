@@ -1,4 +1,4 @@
-export class Location{
+export class PixelLocation{
     x: number;
     y: number;
 

@@ -1,11 +1,12 @@
 import { Component, ViewChild } from '@angular/core';
 import { Duck } from './classes/duck';
 import { Heart } from './classes/heart';
-import { Location } from './classes/location';
+import { PixelLocation } from './classes/location';
 import { Pixel } from './classes/pixel';
 import { Color } from './utils/colors';
 import { DuckCoordinator } from './utils/duck.coordinator';
 import { HeartCoordinator } from './utils/heart.coordinator';
+import { NumbersService } from './utils/numbers.service';
 
 @Component({
     selector: 'app-root',
@@ -24,7 +25,9 @@ export class AppComponent {
     currentFrame = 0
     duckCoordinator: DuckCoordinator = new DuckCoordinator();
     heartCoordinator: HeartCoordinator = new HeartCoordinator();
-    clicks: Location[] = []
+    NumbersService: NumbersService = new NumbersService(new PixelLocation(5, 5));
+    clicks: PixelLocation[] = [];
+    score: number = 0;
 
     ngAfterViewInit() {
         if (this.canvas == null) {
@@ -42,7 +45,7 @@ export class AppComponent {
     public clickEvent(event: any): void {
         const clickX = Math.round(event.offsetX / this.PIXEL_SIZE);
         const clickY = Math.round(event.offsetY / this.PIXEL_SIZE);
-        this.clicks.push(new Location(clickX, clickY));
+        this.clicks.push(new PixelLocation(clickX, clickY));
     }
 
     private startGame(): void {
@@ -58,13 +61,14 @@ export class AppComponent {
             window.requestAnimationFrame(() => this.animate());
         } else {
             this.drawWater();
+            let ducksPetted = 0;
             this.clicks.forEach(click => {
-                if (this.duckCoordinator.petDuck(click.x, click.y)) {
-                    this.heartCoordinator.addHeart(click.x, click.y);
+                const ducksThisPet = this.duckCoordinator.petDuck(click.x, click.y);
+                ducksPetted = ducksPetted + ducksThisPet;
+                if (ducksThisPet > 0) {
                     this.addNewDuck();
-                } else {
-                    this.heartCoordinator.addHeart(click.x, click.y);
                 }
+                this.heartCoordinator.addHeart(click.x, click.y);
             })
             this.clicks = [];
             this.currentFrame = 0;
@@ -73,8 +77,24 @@ export class AppComponent {
             this.heartCoordinator.beat();
             this.heartCoordinator.draw((heart: Heart) => this.drawSprite(heart, this.ctx));
             window.requestAnimationFrame(() => this.animate());
+            this.score = this.score + ducksPetted;
+            this.updateScoreDisplay();
 
         }
+    }
+
+    private updateScoreDisplay(): void {
+        this.NumbersService.toPixels(this.score).forEach((pixel: Pixel) => {
+            if (pixel.color == Color.WATER) {
+                return;
+            }
+            this.ctx.beginPath();
+
+            this.ctx.rect(pixel.location.x * this.PIXEL_SIZE, pixel.location.y * this.PIXEL_SIZE, this.PIXEL_SIZE, this.PIXEL_SIZE);
+            this.ctx.fillStyle = pixel.color;
+            this.ctx.fill();
+        });;
+
     }
 
     private addNewDuck(): void {

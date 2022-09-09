@@ -1,12 +1,12 @@
 import { Duck } from "../classes/duck";
-import { Location } from "../classes/location";
+import { PixelLocation } from "../classes/location";
 import { Color } from "./colors";
 
 export class DuckCoordinator {
    private ducks: Duck[] = []
 
    public addDuck(x: number, y: number, facingLeft = true): void {
-      const duckLocation = new Location(x, y);
+      const duckLocation = new PixelLocation(x, y);
       this.ducks.push(new Duck(duckLocation, facingLeft));
    }
 
@@ -18,12 +18,12 @@ export class DuckCoordinator {
       this.ducks.forEach(duck => duck.move());
    }
 
-   public petDuck(x: number, y: number): boolean {
+   public petDuck(x: number, y: number): number {
       const originalCount = this.ducks.length;
       this.ducks = this.ducks
          .filter(duck => duck.pixels
             .filter(pixel => pixel.color != Color.WATER)
             .findIndex(pixel => pixel.location.x === x && pixel.location.y === y) < 0);
-      return originalCount !== this.ducks.length;
+      return originalCount - this.ducks.length;
    }
 }

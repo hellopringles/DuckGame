@@ -1,11 +1,11 @@
 import { Heart } from "../classes/heart";
-import { Location } from "../classes/location";
+import { PixelLocation } from "../classes/location";
 
 export class HeartCoordinator {
     private hearts: Heart[] = []
 
     public addHeart(x: number, y: number): void {
-        const location = new Location(x, y);
+        const location = new PixelLocation(x, y);
         this.hearts.push(new Heart(location));
     }
 
