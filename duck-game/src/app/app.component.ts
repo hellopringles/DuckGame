@@ -18,12 +18,12 @@ export class AppComponent {
 
     title = 'duck-game';
     ctx: any;
-    WIDTH = 500;
-    HEIGHT = 500;
-    PIXEL_SIZE = 5;
-    delay = 5;
+    WIDTH = 750;
+    HEIGHT = 750;
+    PIXEL_SIZE = 3;
+    delay = 3;
     currentFrame = 0
-    duckCoordinator: DuckCoordinator = new DuckCoordinator();
+    duckCoordinator: DuckCoordinator = new DuckCoordinator(this.HEIGHT / this.PIXEL_SIZE);
     heartCoordinator: HeartCoordinator = new HeartCoordinator();
     NumbersService: NumbersService = new NumbersService(new PixelLocation(5, 5));
     clicks: PixelLocation[] = [];
@@ -81,6 +81,7 @@ export class AppComponent {
             window.requestAnimationFrame(() => this.animate());
             this.score = this.score + ducksPetted;
             this.updateScoreDisplay();
+            this.randomDuck();
             if (ducksPetted > 0) {
                 this.setCookie("SCORE", this.score.toString())
             }
@@ -101,12 +102,17 @@ export class AppComponent {
 
     }
 
-    private addNewDuck(): void {
-        const facingLeft = this.getRandomInt(2) == 1;
-        const xCoordinate = facingLeft ? 90 : 11;
-        this.duckCoordinator.addDuck(xCoordinate, this.getRandomInt(90), facingLeft);
+    private randomDuck(): void {
+        if (this.getRandomInt(20) == 1) {
+            this.addNewDuck();
+        }
     }
 
+    private addNewDuck(): void {
+        const facingLeft = this.getRandomInt(2) == 1;
+        const xCoordinate = facingLeft ? this.WIDTH / this.PIXEL_SIZE : 0;
+        this.duckCoordinator.addDuck(xCoordinate, this.getRandomInt(this.HEIGHT / this.PIXEL_SIZE - 15), facingLeft);
+    }
 
     private drawWater(): void {
         this.ctx.beginPath();
@@ -137,18 +143,18 @@ export class AppComponent {
     private setCookie(name: string, val: string) {
         const date = new Date();
         const value = val;
-    
+
         // Set it expire in 7 days
         date.setTime(date.getTime() + (7 * 24 * 60 * 60 * 1000));
-    
+
         // Set it
-        document.cookie = name+"="+value+"; expires="+date.toUTCString()+"; path=/";
+        document.cookie = name + "=" + value + "; expires=" + date.toUTCString() + "; path=/";
     }
-    
+
     private getCookie(name: string) {
         const value = "; " + document.cookie;
         const parts = value.split("; " + name + "=");
-        
+
         if (parts.length == 2) {
             return (parts.pop() as any).split(";").shift();
         }

@@ -3,11 +3,19 @@ import { PixelLocation } from "../classes/location";
 import { Color } from "./colors";
 
 export class DuckCoordinator {
-   private ducks: Duck[] = []
+   private ducks: Duck[] = [];
+   private gridSize: number = 100;
+
+   constructor(gridSize: number){
+      this.gridSize = gridSize;
+   }
 
    public addDuck(x: number, y: number, facingLeft = true): void {
+      if (this.ducks.length > 100) {
+         return;
+      }
       const duckLocation = new PixelLocation(x, y);
-      this.ducks.push(new Duck(duckLocation, facingLeft));
+      this.ducks.push(new Duck(duckLocation, facingLeft, this.gridSize));
    }
 
    public draw(drawingFunction: Function): void {
