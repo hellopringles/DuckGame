@@ -1,12 +1,12 @@
 import { Color as Color } from "../utils/colors";
-import { Location } from "./location";
+import { PixelLocation } from "./location";
 
 export class Pixel{
-    location: Location;
+    location: PixelLocation;
     color: Color;
 
     constructor(x: number, y: number, color: Color){
-        this.location = new Location(x, y);
+        this.location = new PixelLocation(x, y);
         this.color = color;
     }
 }

@@ -1,5 +1,6 @@
 import { Color } from "../utils/colors";
-import { Location } from "./location";
+import { ResizeService } from "../utils/resize.service";
+import { PixelLocation } from "./location";
 import { Pixel } from "./pixel";
 import { Repeat } from "./repeat";
 
@@ -10,9 +11,13 @@ export class Duck {
     WIDTH = 11;
     repeats: Repeat[] = [];
     facingLeft: Boolean = true;
+    size = 1;
+    resizeService: ResizeService = new ResizeService();
+    gridSize: number;
 
-    constructor(location: Location, facingLeft = true) {
+    constructor(location: PixelLocation, facingLeft = true, gridSize: number) {
         this.define();
+        this.gridSize = gridSize;
         this.position(location);
         if (!facingLeft) {
             this.flip();
@@ -27,8 +32,9 @@ export class Duck {
     }
 
     private shouldReverse(): void {
-        if (this.pixels[0].location.x < -11 || this.pixels[0].location.x > 111) {
+        if (this.pixels[0].location.x < -this.WIDTH || this.pixels[0].location.x > this.gridSize) {
             this.flip();
+            this.getChonkier();
         }
     }
 
@@ -56,17 +62,16 @@ export class Duck {
         }
     }
 
-
-    private sliceIntoChunks(arr: any[], chunkSize: number) {
-        const res = [];
-        for (let i = 0; i < arr.length; i += chunkSize) {
-            const chunk = arr.slice(i, i + chunkSize);
-            res.push(chunk);
+    private getChonkier(): void {
+        if (this.size > 16) {
+            return;
         }
-        return res;
+        this.pixels = this.resizeService.chonkerize(this.pixels, this.WIDTH);
+        this.size = this.size * 2;
+        this.WIDTH = this.WIDTH * this.size;
     }
 
-    private position(location: Location): void {
+    private position(location: PixelLocation): void {
         let y = location.y;
         let x = location.x;
         this.repeats.forEach(repeat => {
