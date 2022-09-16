@@ -1,5 +1,5 @@
 import { Color } from "../utils/colors";
-import { PixelLocation } from "./location";
+import { PixelLocation } from "./pixel.location";
 import { Pixel } from "./pixel";
 import { Repeat } from "./repeat";
 

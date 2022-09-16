@@ -1,6 +1,6 @@
 import { Color } from "../utils/colors";
 import { ResizeService } from "../utils/resize.service";
-import { PixelLocation } from "./location";
+import { PixelLocation } from "./pixel.location";
 import { Pixel } from "./pixel";
 import { Repeat } from "./repeat";
 
@@ -14,9 +14,11 @@ export class Duck {
     size = 1;
     resizeService: ResizeService = new ResizeService();
     gridSize: number;
+    location: PixelLocation;
 
     constructor(location: PixelLocation, facingLeft = true, gridSize: number) {
         this.define();
+        this.location = location;
         this.gridSize = gridSize;
         this.position(location);
         if (!facingLeft) {
@@ -26,13 +28,14 @@ export class Duck {
 
     public move(): void {
         this.facingLeft ?
-            this.pixels.forEach(pixel => pixel.location.x--) :
-            this.pixels.forEach(pixel => pixel.location.x++);
+            this.location.x-- :
+            this.location.x++;
+
         this.shouldReverse();
     }
 
     private shouldReverse(): void {
-        if (this.pixels[0].location.x < -this.WIDTH || this.pixels[0].location.x > this.gridSize) {
+        if (this.location.x < -this.WIDTH || this.location.x > this.gridSize) {
             this.flip();
             this.getChonkier();
         }
@@ -63,12 +66,8 @@ export class Duck {
     }
 
     private getChonkier(): void {
-        if (this.size > 16) {
-            return;
-        }
-        this.pixels = this.resizeService.chonkerize(this.pixels, this.WIDTH);
-        this.size = this.size * 2;
-        this.WIDTH = this.WIDTH * this.size;
+        this.size = this.size + 1;
+        return;
     }
 
     private position(location: PixelLocation): void {
@@ -76,16 +75,6 @@ export class Duck {
         let x = location.x;
         this.repeats.forEach(repeat => {
             for (let i = 0; i < repeat.count; i++) {
-                if (this.pixels.length == 0) {
-                    x = location.x;
-                } else {
-                    x = this.pixels[this.pixels.length - 1].location.x + 1;
-                }
-                if (x - location.x >= this.WIDTH) {
-                    x = location.x;
-                    y++;
-                }
-
                 this.pixels.push(new Pixel(x, y, repeat.color));
             }
         });

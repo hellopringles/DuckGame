@@ -1,5 +1,5 @@
 import { Color as Color } from "../utils/colors";
-import { PixelLocation } from "./location";
+import { PixelLocation } from "./pixel.location";
 
 export class Pixel{
     location: PixelLocation;
