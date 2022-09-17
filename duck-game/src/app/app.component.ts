@@ -55,7 +55,6 @@ export class AppComponent {
     private startGame(): void {
         this.drawWater();
         this.addNewDuck();
-        this.duckCoordinator.draw((duck: Duck) => this.drawSprite(duck, this.ctx));
         window.requestAnimationFrame(() => this.animate());
     }
 
@@ -77,7 +76,7 @@ export class AppComponent {
             this.clicks = [];
             this.currentFrame = 0;
             this.duckCoordinator.moveDucks();
-            this.duckCoordinator.draw((duck: Duck) => this.drawDuck(duck, this.ctx));
+            this.duckCoordinator.draw((duck: Duck) => this.drawSprite(duck, this.ctx));
             this.heartCoordinator.beat();
             this.heartCoordinator.draw((heart: Heart) => this.drawSprite(heart, this.ctx));
             window.requestAnimationFrame(() => this.animate());
@@ -128,7 +127,7 @@ export class AppComponent {
     }
 
 
-    private drawDuck(duck: Duck, ctx: any): void {
+    private drawSprite(duck: Duck | Heart, ctx: any): void {
         let i = 0;
         let row = -1;
         let collum = -1;
@@ -187,19 +186,6 @@ export class AppComponent {
         });
         return petted;
     }
-
-    private drawSprite(sprite: any, ctx: any): void {
-        sprite.pixels.forEach((pixel: Pixel) => {
-            if (pixel.color == Color.WATER) {
-                return;
-            }
-            ctx.beginPath();
-            ctx.rect(pixel.location.x * this.PIXEL_SIZE, pixel.location.y * this.PIXEL_SIZE, this.PIXEL_SIZE, this.PIXEL_SIZE);
-            ctx.fillStyle = pixel.color;
-            ctx.fill();
-        });
-    }
-
 
     private setCookie(name: string, val: string) {
         const date = new Date();

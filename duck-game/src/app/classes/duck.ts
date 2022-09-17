@@ -3,27 +3,23 @@ import { ResizeService } from "../utils/resize.service";
 import { PixelLocation } from "./pixel.location";
 import { Pixel } from "./pixel";
 import { Repeat } from "./repeat";
+import { Sprite } from "./sprite";
 
-export class Duck {
-    pixels: Pixel[] = [];
-    age: number = 1;
+export class Duck extends Sprite {
     HEIGTH = 10;
-    WIDTH = 11;
-    repeats: Repeat[] = [];
     facingLeft: Boolean = true;
-    size = 1;
     resizeService: ResizeService = new ResizeService();
     gridSize: number;
-    location: PixelLocation;
     hidden: boolean = false;
     surprised_frame = 0;
 
     constructor(location: PixelLocation, facingLeft = true, gridSize: number) {
-        this.casualDuck();
-        this.location = location;
+        super(location, 2, 11, [], []);
         this.gridSize = gridSize;
-        this.position(location);
+        this.repeats = this.casualDuck();
+        this.pixels = this.position();
         if (!facingLeft) {
+            this.facingLeft = !this.facingLeft;
             this.flip();
         }
     }
@@ -47,62 +43,30 @@ export class Duck {
         if (this.surprised_frame > 0) {
             return;
         }
-        this.suprisedDuck();
-        this.pixels = [];
-        this.position(this.location);
+        this.repeats = this.suprisedDuck();
+        this.pixels = this.position();
 
         this.surprised_frame++;
         if (!this.facingLeft) {
+            this.facingLeft = !this.facingLeft;
             this.flip();
         }
     }
 
     private shouldReverse(): void {
-        if (this.location.x < -this.WIDTH || this.location.x > this.gridSize) {
+        if (this.location.x < 0|| this.location.x > this.gridSize) {
+            this.facingLeft = !this.facingLeft;
             this.flip();
             this.getChonkier();
         }
     }
 
-    private flip(): void {
-        this.facingLeft = !this.facingLeft;
-        let row = -1;
-        let collum = -1;
-        for (let i = 0; i < this.pixels.length; i++) {
-            if (i % this.WIDTH === 0) {
-                row++;
-                collum = 0;
-            } else {
-                collum++;
-            }
-            if (collum < this.WIDTH / 2) {
-                const storedColor = this.pixels[i].color;
-                const switchIndex = this.WIDTH * row + (this.WIDTH - collum - 1);
-                if (this.pixels[i].color != undefined && this.pixels[switchIndex] != undefined) {
-                    this.pixels[i].color = this.pixels[switchIndex].color;
-                    this.pixels[switchIndex].color = storedColor;
-                } else {
-                    console.log('Hello World');
-                }
-            }
-        }
-    }
 
     private getChonkier(): void {
         this.size = this.size + 1;
     }
 
-    private position(location: PixelLocation): void {
-        let y = location.y;
-        let x = location.x;
-        this.repeats.forEach(repeat => {
-            for (let i = 0; i < repeat.count; i++) {
-                this.pixels.push(new Pixel(x, y, repeat.color));
-            }
-        });
-    }
-
-    private casualDuck(): void {
+    private casualDuck(): Repeat[] {
         const repeats: Repeat[] = []
         // 1 LINE
         repeats.push(new Repeat(2, Color.WATER));
@@ -147,10 +111,10 @@ export class Duck {
         repeats.push(new Repeat(3, Color.WATER));
         repeats.push(new Repeat(7, Color.SHADOW));
         repeats.push(new Repeat(1, Color.WATER));
-        this.repeats = repeats;
+        return repeats;
     }
 
-    private suprisedDuck(): void {
+    private suprisedDuck(): Repeat[] {
         const repeats: Repeat[] = []
         // 1 LINE
         repeats.push(new Repeat(3, Color.WATER));
@@ -199,6 +163,6 @@ export class Duck {
         repeats.push(new Repeat(7, Color.SHADOW));
         repeats.push(new Repeat(1, Color.WATER));
 
-        this.repeats = repeats;
+        return repeats;
     }
 }

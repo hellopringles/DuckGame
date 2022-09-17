@@ -1,7 +1,6 @@
 import { Duck } from "../classes/duck";
 import { PixelLocation } from "../classes/pixel.location";
 import { ClickLocation } from "../classes/click.location";
-import { Color } from "./colors";
 
 export class DuckCoordinator {
    private ducks: Duck[] = [];
