@@ -15,9 +15,11 @@ export class Duck {
     resizeService: ResizeService = new ResizeService();
     gridSize: number;
     location: PixelLocation;
+    hidden: boolean = false;
+    surprised_frame = 0;
 
     constructor(location: PixelLocation, facingLeft = true, gridSize: number) {
-        this.define();
+        this.casualDuck();
         this.location = location;
         this.gridSize = gridSize;
         this.position(location);
@@ -27,11 +29,32 @@ export class Duck {
     }
 
     public move(): void {
+        if (this.surprised_frame > 0) {
+            this.surprised_frame++;
+            if (this.surprised_frame > 20) {
+                this.hidden = true;
+            }
+            return;
+        }
         this.facingLeft ?
             this.location.x-- :
             this.location.x++;
 
         this.shouldReverse();
+    }
+
+    public surprise(): void {
+        if (this.surprised_frame > 0) {
+            return;
+        }
+        this.suprisedDuck();
+        this.pixels = [];
+        this.position(this.location);
+
+        this.surprised_frame++;
+        if (!this.facingLeft) {
+            this.flip();
+        }
     }
 
     private shouldReverse(): void {
@@ -67,7 +90,6 @@ export class Duck {
 
     private getChonkier(): void {
         this.size = this.size + 1;
-        return;
     }
 
     private position(location: PixelLocation): void {
@@ -80,7 +102,7 @@ export class Duck {
         });
     }
 
-    private define(): void {
+    private casualDuck(): void {
         const repeats: Repeat[] = []
         // 1 LINE
         repeats.push(new Repeat(2, Color.WATER));
@@ -125,6 +147,58 @@ export class Duck {
         repeats.push(new Repeat(3, Color.WATER));
         repeats.push(new Repeat(7, Color.SHADOW));
         repeats.push(new Repeat(1, Color.WATER));
+        this.repeats = repeats;
+    }
+
+    private suprisedDuck(): void {
+        const repeats: Repeat[] = []
+        // 1 LINE
+        repeats.push(new Repeat(3, Color.WATER));
+        repeats.push(new Repeat(3, Color.DUCK));
+        repeats.push(new Repeat(5, Color.WATER));
+        // 2 LINE
+        repeats.push(new Repeat(2, Color.WATER));
+        repeats.push(new Repeat(5, Color.DUCK));
+        repeats.push(new Repeat(4, Color.WATER));
+        // 3 LINE
+        repeats.push(new Repeat(1, Color.WATER));
+        repeats.push(new Repeat(3, Color.PEAK));
+        repeats.push(new Repeat(1, Color.DUCK));
+        repeats.push(new Repeat(1, Color.EYE));
+        repeats.push(new Repeat(1, Color.DUCK));
+        repeats.push(new Repeat(3, Color.WATER));
+        repeats.push(new Repeat(1, Color.DUCK));
+        // 4 LINE
+        repeats.push(new Repeat(2, Color.WATER));
+        repeats.push(new Repeat(2, Color.PEAK));
+        repeats.push(new Repeat(3, Color.DUCK));
+        repeats.push(new Repeat(1, Color.WATER));
+        repeats.push(new Repeat(3, Color.DUCK));
+        // 5 LINE
+        repeats.push(new Repeat(3, Color.WATER));
+        repeats.push(new Repeat(7, Color.DUCK));
+        repeats.push(new Repeat(1, Color.WATER));
+        // 6 LINE
+        repeats.push(new Repeat(2, Color.WATER));
+        repeats.push(new Repeat(7, Color.DUCK));
+        repeats.push(new Repeat(1, Color.WATER));
+        repeats.push(new Repeat(1, Color.DUCK));
+        // 7 LINE
+        repeats.push(new Repeat(2, Color.WATER));
+        repeats.push(new Repeat(9, Color.DUCK));
+        // 8 LINE
+        repeats.push(new Repeat(3, Color.WATER));
+        repeats.push(new Repeat(8, Color.DUCK));
+        // 9 LINE
+        repeats.push(new Repeat(3, Color.WATER));
+        repeats.push(new Repeat(1, Color.SHADOW));
+        repeats.push(new Repeat(6, Color.DUCK));
+        repeats.push(new Repeat(1, Color.SHADOW));
+        // 10 LINE
+        repeats.push(new Repeat(3, Color.WATER));
+        repeats.push(new Repeat(7, Color.SHADOW));
+        repeats.push(new Repeat(1, Color.WATER));
+
         this.repeats = repeats;
     }
 }
