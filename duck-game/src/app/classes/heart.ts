@@ -1,47 +1,32 @@
 import { Color } from "../utils/colors";
-import { PixelLocation } from "./location";
+import { PixelLocation } from "./pixel.location";
 import { Pixel } from "./pixel";
 import { Repeat } from "./repeat";
+import { Sprite } from "./sprite";
 
-export class Heart {
-    pixels: Pixel[] = [];
-    WIDTH: number = 5;
-    repeats: Repeat[] = [];
+export class Heart extends Sprite{
     life = 60;
 
     constructor(location: PixelLocation) {
+        super(location, 1, 5, [], []);
         location.x = location.x - 2;
         location.y = location.y - 2;
-        this.define();
-        this.position(location)
-    }
-
-    private position(location: PixelLocation): void {
-        let y = location.y;
-        let x = location.x;
-        this.repeats.forEach(repeat => {
-            for (let i = 0; i < repeat.count; i++) {
-                if (this.pixels.length == 0) {
-                    x = location.x;
-                } else {
-                    x = this.pixels[this.pixels.length - 1].location.x + 1;
-                }
-                if (x - location.x >= this.WIDTH) {
-                    x = location.x;
-                    y++;
-                }
-
-                this.pixels.push(new Pixel(x, y, repeat.color));
-            }
-        });
+        this.repeats = this.define();
+        this.pixels = this.position();
     }
 
     public beat(): boolean {
         this.life--;
+        if (this.life % 10 === 0) {
+            const locationOffset = this.size == 1 ? 2 : -2;
+            this.location.x = this.location.x - locationOffset;
+            this.location.y = this.location.y - locationOffset;
+            this.size = this.size == 1 ? 2 : 1;
+        }
         return this.life > 0;
     }
 
-    private define(): void {
+    private define(): Repeat[] {
         const repeats: Repeat[] = []
         // 1 LINE
         repeats.push(new Repeat(1, Color.WATER));
@@ -60,6 +45,6 @@ export class Heart {
         repeats.push(new Repeat(1, Color.HEART));
         repeats.push(new Repeat(2, Color.WATER));
         repeats.push(new Repeat(1, Color.WATER));
-        this.repeats = repeats;
+        return repeats;
     }
 }

@@ -1,17 +1,17 @@
 import { Duck } from "../classes/duck";
-import { PixelLocation } from "../classes/location";
-import { Color } from "./colors";
+import { PixelLocation } from "../classes/pixel.location";
+import { ClickLocation } from "../classes/click.location";
 
 export class DuckCoordinator {
    private ducks: Duck[] = [];
    private gridSize: number = 100;
 
-   constructor(gridSize: number){
+   constructor(gridSize: number) {
       this.gridSize = gridSize;
    }
 
    public addDuck(x: number, y: number, facingLeft = true): void {
-      if (this.ducks.length > 100) {
+      if (this.ducks.length > 0) {
          return;
       }
       const duckLocation = new PixelLocation(x, y);
@@ -24,14 +24,16 @@ export class DuckCoordinator {
 
    public moveDucks(): void {
       this.ducks.forEach(duck => duck.move());
+      this.ducks = this.ducks
+         .filter(duck => !duck.hidden);
    }
 
-   public petDuck(x: number, y: number): number {
-      const originalCount = this.ducks.length;
-      this.ducks = this.ducks
-         .filter(duck => duck.pixels
-            .filter(pixel => pixel.color != Color.WATER)
-            .findIndex(pixel => pixel.location.x === x && pixel.location.y === y) < 0);
-      return originalCount - this.ducks.length;
+   public petDuck(location: ClickLocation, callback: Function): number {
+      this.ducks
+         .filter(duck => callback(location, duck))
+         .forEach(duck => duck.surprise());
+      const ducksPetted = this.ducks
+         .filter(duck => callback(location, duck)).length;
+      return ducksPetted;
    }
 }

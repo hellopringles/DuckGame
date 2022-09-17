@@ -1,5 +1,5 @@
 import { Heart } from "../classes/heart";
-import { PixelLocation } from "../classes/location";
+import { PixelLocation } from "../classes/pixel.location";
 
 export class HeartCoordinator {
     private hearts: Heart[] = []
