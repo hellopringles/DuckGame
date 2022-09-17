@@ -1,4 +1,4 @@
-import { PixelLocation } from "../classes/location";
+import { PixelLocation } from "../classes/pixel.location";
 import { Pixel } from "../classes/pixel";
 import { Repeat } from "../classes/repeat";
 import { Color } from "./colors";

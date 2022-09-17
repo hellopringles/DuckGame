@@ -1,12 +1,14 @@
 import { Component, ViewChild } from '@angular/core';
 import { Duck } from './classes/duck';
 import { Heart } from './classes/heart';
-import { PixelLocation } from './classes/location';
+import { PixelLocation } from './classes/pixel.location';
+import { ClickLocation } from './classes/click.location';
 import { Pixel } from './classes/pixel';
 import { Color } from './utils/colors';
 import { DuckCoordinator } from './utils/duck.coordinator';
 import { HeartCoordinator } from './utils/heart.coordinator';
 import { NumbersService } from './utils/numbers.service';
+import { skip } from 'rxjs';
 
 @Component({
     selector: 'app-root',
@@ -26,7 +28,7 @@ export class AppComponent {
     duckCoordinator: DuckCoordinator = new DuckCoordinator(this.HEIGHT / this.PIXEL_SIZE);
     heartCoordinator: HeartCoordinator = new HeartCoordinator();
     NumbersService: NumbersService = new NumbersService(new PixelLocation(5, 5));
-    clicks: PixelLocation[] = [];
+    clicks: ClickLocation[] = [];
     score: number = 0;
 
     ngAfterViewInit() {
@@ -47,7 +49,7 @@ export class AppComponent {
     public clickEvent(event: any): void {
         const clickX = Math.round(event.offsetX / this.PIXEL_SIZE);
         const clickY = Math.round(event.offsetY / this.PIXEL_SIZE);
-        this.clicks.push(new PixelLocation(clickX, clickY));
+        this.clicks.push(new ClickLocation(clickX, clickY, event.offsetX, event.offsetY));
     }
 
     private startGame(): void {
@@ -65,7 +67,7 @@ export class AppComponent {
             this.drawWater();
             let ducksPetted = 0;
             this.clicks.forEach(click => {
-                const ducksThisPet = this.duckCoordinator.petDuck(click.x, click.y);
+                const ducksThisPet = this.duckCoordinator.petDuck(click, (location: ClickLocation, duck: Duck) =>  this.onDuck(location, duck));
                 ducksPetted = ducksPetted + ducksThisPet;
                 if (ducksThisPet > 0) {
                     this.addNewDuck();
@@ -75,7 +77,7 @@ export class AppComponent {
             this.clicks = [];
             this.currentFrame = 0;
             this.duckCoordinator.moveDucks();
-            this.duckCoordinator.draw((duck: Duck) => this.drawSprite(duck, this.ctx));
+            this.duckCoordinator.draw((duck: Duck) => this.drawDuck(duck, this.ctx));
             this.heartCoordinator.beat();
             this.heartCoordinator.draw((heart: Heart) => this.drawSprite(heart, this.ctx));
             window.requestAnimationFrame(() => this.animate());
@@ -126,13 +128,72 @@ export class AppComponent {
     }
 
 
+    private drawDuck(duck: Duck, ctx: any): void {
+        let i = 0;
+        let row = -1;
+        let collum = -1;
+        const cornerX = duck.location.x * this.PIXEL_SIZE;
+        const cornerY = duck.location.y * this.PIXEL_SIZE;
+        duck.pixels.forEach(pixel => {
+            if (i % duck.WIDTH === 0) {
+                row++;
+                collum = 0;
+            }
+
+            const currentX = cornerX + collum * duck.size * this.PIXEL_SIZE;
+            const currentY = cornerY + row * duck.size * this.PIXEL_SIZE;
+            i++;
+            collum++;
+
+            if (pixel.color !== Color.WATER) {
+                ctx.beginPath();
+                ctx.rect(currentX, currentY, this.PIXEL_SIZE * duck.size, this.PIXEL_SIZE * duck.size);
+                ctx.fillStyle = pixel.color;
+                ctx.fill();
+
+            }
+        });
+    }
+
+    private onDuck(click: ClickLocation, duck: Duck): boolean {
+        let petted = false;
+        let i = 0;
+        let row = -1;
+        let collum = -1;
+        const cornerX = duck.location.x * this.PIXEL_SIZE;
+        const cornerY = duck.location.y * this.PIXEL_SIZE;
+        duck.pixels.forEach(pixel => {
+            if (petted) {
+                skip;
+            }
+            if (i % duck.WIDTH === 0) {
+                row++;
+                collum = 0;
+            }
+
+            const currentX = cornerX + collum * duck.size * this.PIXEL_SIZE;
+            const currentY = cornerY + row * duck.size * this.PIXEL_SIZE;
+
+            const currentXMaxim = currentX + this.PIXEL_SIZE * duck.size;
+            const currentYMaxim = currentY + this.PIXEL_SIZE * duck.size;
+            i++;
+            collum++;
+
+            if (pixel.color !== Color.WATER && 
+                currentX <= click.xAbsolut && currentXMaxim >= click.xAbsolut &&
+                currentY <= click.yAbsolute && currentYMaxim >= click.yAbsolute) {
+                petted = true;
+            }
+        });
+        return petted;
+    }
+
     private drawSprite(sprite: any, ctx: any): void {
         sprite.pixels.forEach((pixel: Pixel) => {
             if (pixel.color == Color.WATER) {
                 return;
             }
             ctx.beginPath();
-
             ctx.rect(pixel.location.x * this.PIXEL_SIZE, pixel.location.y * this.PIXEL_SIZE, this.PIXEL_SIZE, this.PIXEL_SIZE);
             ctx.fillStyle = pixel.color;
             ctx.fill();
